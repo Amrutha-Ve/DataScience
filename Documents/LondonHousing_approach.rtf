@@ -1,0 +1,31 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 1. Sourcing and Loading\
+\
+Import libraries\
+Load and read data using read_excel for xlsx or read_csv for csv files\
+\
+2. Cleaning, transforming and visualizing\
+\
+2.1 Explore data - 	print the data frame\
+2.2 Cleaning - 	Transpose data to convert to change rows to columns and vice versa\
+			Row index changes after transpose, use reset_index to use 0 to n-1 as indices\
+			Move first row to column heading and drop the first row\
+2.3 Still cleaning-	Rename columns if needed\
+2.4 Transforming-	melt data to long format\
+			Check data types, prices should be floats\
+2.5 Clean again-	Check for nulls in the main/first/data column (32 keys expected but got 45)\
+			Drop nulls in all rows using isna() or dropna()\
+			Remove rows that have invalid keys (all non-boroughs removed)\
+2.6 Visualize data-	Plot a graph using a subset (a specific borough) \
+			Reduce the number of data points using aggregate and summary statistics (extract year from date to get average prices for every year for every borough)\
+\
+3. Modeling -		Based on the problem statement, build a model that will help answer the 			question.\
+			We have average prices for every year for every borough\
+			Write a function that will give the price increase from the first year to the last.\
+			Create a data frame from the results and visualize to obtain the answer.}
