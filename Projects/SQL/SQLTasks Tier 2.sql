@@ -172,8 +172,8 @@ QUESTIONS:
 The output of facility name and total revenue, sorted by revenue. Remember
 that there's a different cost for guests and members! */
 
-    query1 = """
-select distinct name as facility_name, totalcosts.total_cost as cost 
+with facility_cost as (
+select distinct name as facility_name, (totalcosts.total_cost) as cost 
 from 
 (
 select allcosts.memid, allcosts.facid, allcosts.bookid, allcosts.slots, allcosts.rental_cost, (allcosts.slots * allcosts.rental_cost) as total_cost 
@@ -192,27 +192,14 @@ as totalcosts
 inner join Members 
 on totalcosts.memid = Members.memid 
 inner join Facilities 
-on totalcosts.facid = Facilities.facid 
-order by totalcosts.total_cost DESC
-            """
-    cur.execute(query1)
- 
-    rows = cur.fetchall()
- 
+on totalcosts.facid = Facilities.facid
+order by totalcosts.total_cost DESC )
 
-    rs = cur.execute(query1)
-    df = pd.DataFrame(rs.fetchall())
-    df.columns = [description[0] for description in cur.description]
-
-    #print(df.info())
-
-    #print(df.head())
-    facility_revenue = df.groupby(by=["facility_name"])["cost"].sum()#([min, max, np.mean, np.median])
-    facility_revenue_df = pd.DataFrame({'facility_name':facility_revenue.index, 'revenue':facility_revenue.values})
-    facility_revenue_df = facility_revenue_df.sort_values('revenue')
-    #facility_revenue.columns = ['facility_name','cost']
-    facility_revenue_new = facility_revenue_df[facility_revenue_df['revenue'] < 1000]
-    print(facility_revenue_new)
+select facility_cost.facility_name, sum(facility_cost.cost)
+from facility_cost
+group by facility_cost.facility_name
+having sum(facility_cost.cost) < 1000
+order by facility_cost.cost 
 
 
 /* Q11: Produce a report of members and who recommended them in alphabetic surname,firstname order */
@@ -222,44 +209,9 @@ select distinct concat(M1.surname,' ' ,M1.firstname) as Member_name, concat(M2.s
 
 /* Q12: Find the facilities with their usage by member, but not guests */
 
-    query1 = """
-            SELECT * FROM Bookings WHERE memid != 0 ORDER by facid        
-            """
-    cur.execute(query1)
- 
-    rows = cur.fetchall()
- 
-
-    rs = cur.execute(query1)
-    df = pd.DataFrame(rs.fetchall())
-    df.columns = [description[0] for description in cur.description]
-
-
-    mem_usage_stats = df.groupby(by="facid")["memid"].agg([min, max, np.mean, np.median])
-
-    print(mem_usage_stats)
+SELECT facid, memid, count(memid) as times_used FROM Bookings WHERE memid != 0 group by facid, memid order by facid      
 
 
 /* Q13: Find the facilities usage by month, but not guests */
 
-    query1 = """
-            SELECT * from Bookings where memid != 0          
-            """
-    cur.execute(query1)
- 
-    rows = cur.fetchall()
- 
-
-    rs = cur.execute(query1)
-    df = pd.DataFrame(rs.fetchall())
-    df.columns = [description[0] for description in cur.description]
-
-    df["starttime"] = df["starttime"].apply(pd.to_datetime)
-
-    #print(df.info())
-
-    df['starttime'] = df['starttime'].dt.month
-    #print(df.head())
-    month_usage_stats = df.groupby(by=["facid","starttime"])["memid"].agg([min, max, np.mean, np.median])
-
-    print(month_usage_stats)
+select facid, count(memid), EXTRACT(MONTH FROM Bookings.starttime) as month from Bookings where memid != 0 group by facid, month
